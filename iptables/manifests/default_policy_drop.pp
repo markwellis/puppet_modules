@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+class iptables::default_policy_drop ( $output_drop = false ) {
+  #because we want it after all the other firewall rules, and we cant use firewallchain twicw
+  # with the same name
+  exec {"iptables input drop":
+    command => '/sbin/iptables -P INPUT DROP',
+    unless  => '/sbin/iptables -L | /bin/fgrep "Chain INPUT (policy DROP)" -q',
+    require => Class['iptables::ip4defaults'],
+  }
+  exec {"iptables forward drop":
+    command => '/sbin/iptables -P FORWARD DROP',
+    unless  => '/sbin/iptables -L | /bin/fgrep "Chain FORWARD (policy DROP)" -q',
+    require => Class['iptables::ip4defaults'],
+  }
+  if ( $output_drop ) {
+    exec {"iptables output drop":
+      command => '/sbin/iptables -P OUTPUT DROP',
+      unless  => '/sbin/iptables -L | /bin/fgrep "Chain OUTPUT (policy DROP)" -q',
+      require => Class['iptables::ip4defaults'],
+    }
+  }
+}

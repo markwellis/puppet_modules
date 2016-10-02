@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+class ip_forwarding {
+  file { "/etc/sysctl.d/999-forwarding.conf":
+    ensure    => 'file',
+    content => 'net.ipv4.ip_forward = 1',
+  }
+}

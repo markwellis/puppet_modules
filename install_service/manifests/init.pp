@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+define install_service (
+  $ensure = true,
+  $enable = true,
+
+  $user,
+  $command,
+  $group       = $user,
+  $after       = 'network.target',
+  $restart     = 'always',
+  $description = false,
+  $type        = false,
+  $working_dir = false,
+  $environment = false,
+  $restart_sec = 10,
+) {
+  if ( !defined( File["/etc/systemd/system/$title.service"] ) ) {
+    file { "/etc/systemd/system/$title.service":
+      owner => root,
+      group => root,
+      content => template("install_service/service.erb")
+    }
+  }
+  service { $title:
+    ensure  => $ensure,
+    enable  => $enable,
+    require => File["/etc/systemd/system/$title.service"],
+  }
+}

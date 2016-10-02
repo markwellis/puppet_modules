@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+class disable_ipv6 {
+  file { "/etc/sysctl.d/998-disable-ipv6.conf":
+    ensure  => 'file',
+    content => 'net.ipv6.conf.all.disable_ipv6 = 1',
+  }
+}

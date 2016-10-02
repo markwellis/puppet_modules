@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+define iptables::open_port ( $interface, $port, $proto, $ensure = 'present' ) {
+  Firewall {
+    require => undef,
+  }
+
+  if ( $proto == 'tcp' ) {
+    $chain = 'TCP'
+  }
+  elsif ( $proto == 'udp' ) {
+    $chain = 'UDP'
+  }
+  else {
+    $chain = 'INPUT'
+  }
+  firewall { "333 - $title":
+    port    => $port,
+    proto   => $proto,
+    action  => accept,
+    iniface => $interface,
+    chain   => $chain,
+    ensure  => $ensure,
+  }
+}

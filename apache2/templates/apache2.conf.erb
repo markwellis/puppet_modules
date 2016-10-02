@@ -1,3 +1,5 @@
+<%
+=begin
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +21,54 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+=end
+-%>
+#MANAGED BY PUPPET
+
+# Security
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+
+ServerName "<%= fqdn %>"
+ServerRoot "/etc/apache2"
+PidFile ${APACHE_PID_FILE}
+Timeout 120
+KeepAlive Off
+MaxKeepAliveRequests 100
+KeepAliveTimeout 15
+
+
+User www-data
+Group www-data
+
+AccessFileName .htaccess
+<FilesMatch "^\.ht">
+    Require all denied
+</FilesMatch>
+
+<Directory />
+  Options FollowSymLinks
+  AllowOverride None
+</Directory>
+
+
+HostnameLookups Off
+ErrorLog "/var/log/apache2/error.log"
+LogLevel warn
+EnableSendfile On
+
+#Listen 80
+
+
+IncludeOptional "/etc/apache2/mods-enabled/*.load"
+IncludeOptional "/etc/apache2/mods-enabled/*.conf"
+Include "/etc/apache2/ports.conf"
+
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+IncludeOptional "/etc/apache2/conf.d/*.conf"
+IncludeOptional "/etc/apache2/sites-enabled/*"

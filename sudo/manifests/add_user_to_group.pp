@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) 2015 Mark Ellis
@@ -19,3 +20,19 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+define sudo::add_user_to_group {
+  include ::sudo::config
+
+  if ( User[ $title] ) {
+    User <| title == $title |> {
+      groups +> $sudo::config::wheel_group,
+    }
+  }
+  else {
+    user { $title:
+      groups  => $sudo::config::wheel_group,
+    }
+  }
+}
