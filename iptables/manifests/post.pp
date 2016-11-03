@@ -22,40 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-define iptables::ip_forwarding ( $address, $interface, $snat = false ) {
-  Firewall {
-    require => Class['iptables'],
-    before  => Class['iptables::post'],
-  }
-
-  firewall { "096 forwarding allow related,established $address $interface":
-    chain    => 'FORWARD',
-    action   => 'accept',
-    ctstate  => ['RELATED', 'ESTABLISHED'],
-    proto    => 'all',
-  }->
-  firewall { "097 forwarding for network $address $interface":
-    chain    => 'FORWARD',
-    action   => 'accept',
-    proto    => 'all',
-    source   => $address,
-  }->
-  firewall { "098 reject all forwarded traffic $address $interface":
-    chain    => 'FORWARD',
-    action   => 'reject',
-    reject   => 'icmp-port-unreachable',
-    proto    => 'all',
-  }
-
-  if( $snat ) { 
-    firewall { "100 snat for network $address $interface":
-      chain    => 'POSTROUTING',
-      jump     => 'SNAT',
-      tosource => inline_template("<%= ipaddress_${interface} %>"),
-      proto    => 'all',
-      outiface => $interface,
-      source   => $address,
-      table    => 'nat',
-    }
+class iptables::post ( $output_drop = false ) {
+  class {"iptables::default_policy_drop":
+    output_drop => $output_drop,
   }
 }

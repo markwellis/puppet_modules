@@ -24,7 +24,8 @@ SOFTWARE.
 
 define iptables::accept_all_on_interface ($interface) {
   Firewall {
-    require => undef,
+    require => Class['iptables'],
+    before  => Class['iptables::post'],
   }
 
   firewall { "001 accept all on $interface":

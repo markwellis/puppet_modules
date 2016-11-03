@@ -24,19 +24,9 @@ SOFTWARE.
 
 class iptables::ip6defaults {
   Firewall {
-    require => undef,
+    before  => Class['iptables::post'],
   }
 
-  firewallchain { 'INPUT:filter:IPv6':
-    ensure => present,
-    policy => drop,
-    purge  => true,
-  }->
-  firewallchain { 'FORWARD:filter:IPv6':
-    ensure => present,
-    policy => drop,
-    purge  => true,
-  }->
   firewallchain { 'TCP:filter:IPv6':
     ensure  => present,
     purge  => true,

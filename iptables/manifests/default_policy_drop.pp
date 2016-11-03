@@ -23,23 +23,38 @@ SOFTWARE.
 */
 
 class iptables::default_policy_drop ( $output_drop = false ) {
-  #because we want it after all the other firewall rules, and we cant use firewallchain twicw
-  # with the same name
-  exec {"iptables input drop":
-    command => '/sbin/iptables -P INPUT DROP',
-    unless  => '/sbin/iptables -L | /bin/fgrep "Chain INPUT (policy DROP)" -q',
-    require => Class['iptables::ip4defaults'],
+  Firewall {
+    require  => Class['iptables::post'],
   }
-  exec {"iptables forward drop":
-    command => '/sbin/iptables -P FORWARD DROP',
-    unless  => '/sbin/iptables -L | /bin/fgrep "Chain FORWARD (policy DROP)" -q',
-    require => Class['iptables::ip4defaults'],
+
+  firewallchain { 'INPUT:filter:IPv4':
+    purge  => true,
+    policy => 'drop',
+  }
+  firewallchain { 'FORWARD:filter:IPv4':
+    purge  => true,
+    policy => 'drop',
+  }
+  firewallchain { 'INPUT:filter:IPv6':
+    ensure => present,
+    policy => drop,
+    purge  => true,
+  }
+  firewallchain { 'FORWARD:filter:IPv6':
+    ensure => present,
+    policy => drop,
+    purge  => true,
   }
   if ( $output_drop ) {
-    exec {"iptables output drop":
-      command => '/sbin/iptables -P OUTPUT DROP',
-      unless  => '/sbin/iptables -L | /bin/fgrep "Chain OUTPUT (policy DROP)" -q',
-      require => Class['iptables::ip4defaults'],
+    firewallchain { 'OUTPUT:filter:IPv4':
+      ensure => present,
+      purge  => true,
+      policy => 'drop',
+    }
+    firewallchain { 'OUTPUT:filter:IPv6':
+      ensure => present,
+      purge  => true,
+      policy => 'drop',
     }
   }
 }

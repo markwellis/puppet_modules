@@ -22,23 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-class iptables::ip4defaults ( $purge_output = false ) {
+class iptables::ip4defaults {
   Firewall {
-    require => undef,
+    before  => Class['iptables::post'],
   }
 
-  firewallchain { 'INPUT:filter:IPv4':
-    ensure => present,
-    purge  => true,
-  }->
-  firewallchain { 'FORWARD:filter:IPv4':
-    ensure => present,
-    purge  => true,
-  }->
-  firewallchain { 'OUTPUT:filter:IPv4':
-    ensure => present,
-    purge  => $purge_output,
-  }->
   firewallchain { 'TCP:filter:IPv4':
     ensure  => present,
     purge  => true,

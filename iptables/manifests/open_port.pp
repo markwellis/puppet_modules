@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-define iptables::open_port ( $interface, $port, $proto, $ensure = 'present' ) {
+define iptables::open_port ( $interface = undef, $port, $proto, $ensure = 'present' ) {
   Firewall {
-    require => undef,
+    require => Class['iptables'],
+    before  => Class['iptables::post'],
   }
 
   if ( $proto == 'tcp' ) {
@@ -37,7 +38,7 @@ define iptables::open_port ( $interface, $port, $proto, $ensure = 'present' ) {
     $chain = 'INPUT'
   }
   firewall { "333 - $title":
-    port    => $port,
+    dport   => $port,
     proto   => $proto,
     action  => accept,
     iniface => $interface,

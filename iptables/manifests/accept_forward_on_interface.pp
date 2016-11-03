@@ -24,7 +24,8 @@ SOFTWARE.
 
 define iptables::accept_forward_on_interface($interface) {
   Firewall {
-    require => undef,
+    require => Class['iptables'],
+    before  => Class['iptables::post'],
   }
 
   firewall { "010 accept forward on $interface":

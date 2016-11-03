@@ -22,55 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-class iptables ( $ssh_interface = undef, $output_drop = false ) {
-  if ( $operatingsystem == 'Debian' ) {
-    $iptables_persistent = "iptables-persistent"
-  }
-  elsif ( $operatingsystem == 'Fedora' ) {
-    $iptables_persistent = "iptables-services"
-  }
-
-  package { $iptables_persistent:
-    ensure => present,
-  }
-  #in debian containers modprobe fails and breaks iptables-persistent save
-  if (
-    ( $operatingsystem == 'Debian' )
-    and $is_virtual and ( $virtual == 'lxc' )
-  ) {
-    file { "/sbin/modprobe":
-      ensure => 'link',
-      target => '/bin/true',
-    }
-    $faked_modprobe = File['/sbin/modprobe']
-  }
-  else {
-    $faked_modprobe = []
+class iptables ( $output_drop = false ) {
+  class { "firewall": }
+  Firewall {
+    before  => Class['iptables::post'],
+    require => Class['iptables::pre'],
   }
 
-  class { "iptables::ip4defaults":
-    purge_output => $output_drop,
-    require      => [Package[$iptables_persistent], $faked_modprobe],
-  }
-  class { "iptables::ip6defaults":
-    require      => [Package[$iptables_persistent], $faked_modprobe],
+  class { "iptables::pre":
+    require     => Class['firewall'],
   }
 
-  if ( $ssh_interface ) {
-    iptables::open_port{ "allow internal ssh access":
-      interface => 'eth1',
-      proto     => 'tcp',
-      port      => 22,
-      require   => [Class['iptables::ip4defaults'], Class['iptables::ip6defaults']],
-    }
-    $iptables_require = Iptables::Open_port['allow internal ssh access']
-  }
-  else {
-    $iptables_require = undef
-  }
-
-  class {"iptables::default_policy_drop":
+  class { "iptables::post":
     output_drop => $output_drop,
-    require     => $iptables_require,
+    require     => Class['firewall'],
   }
 }
